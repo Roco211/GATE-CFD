@@ -18,6 +18,8 @@ curl -fsSL https://raw.githubusercontent.com/Roco211/GATE-CFD/main/deploy/linux.
 
 安装目录默认 `/opt/gate-cfd`。再次运行同一命令会拉取更新、构建并替换容器；不会重置 token、Gate 密钥或策略数据库。若源码有本地修改，脚本会停止更新，保留修改。
 
+HTTPS 安装会额外验证证书及未登录会话接口；直接使用 IP 时按浏览器不发送 SNI 的方式检查，避免容器已启动却打不开页面。验证失败会提示检查证书及入口日志，服务保留运行。
+
 ```bash
 cd /opt/gate-cfd
 sudo docker compose --env-file .env.deploy logs --tail=100 grid

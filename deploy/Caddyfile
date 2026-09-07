@@ -1,3 +1,9 @@
+{
+    # Browsers omit SNI for literal IP URLs. Docker's private address cannot
+    # select the public IP certificate, so use the configured public host.
+    default_sni {$GRID_PUBLIC_HOST}
+}
+
 {$GRID_PUBLIC_HOST} {
     tls {
         issuer acme {

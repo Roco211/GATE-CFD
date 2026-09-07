@@ -14,4 +14,5 @@
 !scripts/configure_access.py
 !scripts/test_latency.py
 !deploy/container_start.py
+!deploy/check_https.py
 !deploy/access-default.json

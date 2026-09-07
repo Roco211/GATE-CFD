@@ -61,12 +61,17 @@ elif [[ ! -f .env.deploy || $LOCAL_ONLY == 1 ]]; then
 fi
 docker compose --env-file .env.deploy build grid
 docker compose --env-file .env.deploy up -d --remove-orphans --wait --wait-timeout 120
-echo 'Grid Studio installed. Persistent data and encryption keys are stored in Docker volumes.'
 if grep -q '^COMPOSE_PROFILES=https$' .env.deploy; then
   PUBLIC_HOST=$(sed -n 's/^GRID_PUBLIC_HOST=//p' .env.deploy)
+  # Git may replace the bind-mounted Caddyfile inode. Recreate only the proxy
+  # so its configuration is refreshed even when the Compose definition is unchanged.
+  docker compose --env-file .env.deploy up -d --no-deps --force-recreate https
+  docker compose --env-file .env.deploy exec -T grid python deploy/check_https.py "$PUBLIC_HOST"
+  echo 'Grid Studio installed. Persistent data and encryption keys are stored in Docker volumes.'
   echo "Open https://$PUBLIC_HOST/ and enter your configured access token."
   echo 'Certificate issuance requires inbound TCP 80 and 443. Do not bypass certificate errors; inspect: docker compose --env-file .env.deploy logs https'
 else
+  echo 'Grid Studio installed. Persistent data and encryption keys are stored in Docker volumes.'
   echo "Only 127.0.0.1:${GRID_PORT:-18473} is exposed. Forward it through SSH to access the console."
 fi
 echo 'Configure Gate API credentials after login. No trading credentials or previous strategies were imported.'
