@@ -67,6 +67,6 @@ if grep -q '^COMPOSE_PROFILES=https$' .env.deploy; then
   echo "Open https://$PUBLIC_HOST/ and enter your configured access token."
   echo 'Certificate issuance requires inbound TCP 80 and 443. Do not bypass certificate errors; inspect: docker compose --env-file .env.deploy logs https'
 else
-  echo 'Only 127.0.0.1:18473 is exposed. Forward it through SSH to access the console.'
+  echo "Only 127.0.0.1:${GRID_PORT:-18473} is exposed. Forward it through SSH to access the console."
 fi
 echo 'Configure Gate API credentials after login. No trading credentials or previous strategies were imported.'
