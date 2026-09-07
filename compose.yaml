@@ -1,0 +1,48 @@
+name: gate-cfd
+services:
+  grid:
+    build: .
+    image: gate-cfd-console:local
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 45s
+    ports:
+      - "127.0.0.1:${GRID_PORT:-18473}:18473"
+    environment:
+      GRID_ALLOWED_HOSTS: ${GRID_PUBLIC_HOST:-localhost}
+      GRID_TUNNEL_PORT: ${GRID_PORT:-18473}
+    volumes:
+      - grid_data:/var/lib/grid-studio
+      - grid_keys:/var/lib/grid-studio-keys
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+  https:
+    image: caddy:2.11-alpine
+    profiles: [https]
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      GRID_PUBLIC_HOST: ${GRID_PUBLIC_HOST:-localhost}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      grid: {condition: service_healthy}
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+volumes:
+  grid_data:
+  grid_keys:
+  caddy_data:
+  caddy_config:

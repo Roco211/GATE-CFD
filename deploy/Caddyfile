@@ -1,0 +1,15 @@
+{$GRID_PUBLIC_HOST} {
+    tls {
+        issuer acme {
+            dir https://acme-v02.api.letsencrypt.org/directory
+            profile shortlived
+        }
+    }
+    encode zstd gzip
+    request_body {
+        max_size 1MB
+    }
+    reverse_proxy grid:18473 {
+        flush_interval -1
+    }
+}
